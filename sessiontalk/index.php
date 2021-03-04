@@ -1,178 +1,237 @@
 <?php
-/*
-	FusionPBX
-	Version: MPL 1.1
 
-	The contents of this file are subject to the Mozilla Public License Version
-	1.1 (the "License"); you may not use this file except in compliance with
-	the License. You may obtain a copy of the License at
-	http://www.mozilla.org/MPL/
+$text['title-sessiontalk']['en-us'] = "SessionCloud";
+$text['title-sessiontalk']['en-gb'] = "SessionCloud";
+$text['title-sessiontalk']['ar-eg'] = "";
+$text['title-sessiontalk']['de-at'] = "";
+$text['title-sessiontalk']['de-ch'] = "";
+$text['title-sessiontalk']['de-de'] = "";
+$text['title-sessiontalk']['es-cl'] = "";
+$text['title-sessiontalk']['es-mx'] = "";
+$text['title-sessiontalk']['fr-ca'] = "SessionCloud";
+$text['title-sessiontalk']['fr-fr'] = "SessionCloud";
+$text['title-sessiontalk']['he-il'] = "";
+$text['title-sessiontalk']['it-it'] = "";
+$text['title-sessiontalk']['nl-nl'] = "SessionCloud";
+$text['title-sessiontalk']['pl-pl'] = "";
+$text['title-sessiontalk']['pt-br'] = "";
+$text['title-sessiontalk']['pt-pt'] = "";
+$text['title-sessiontalk']['ro-ro'] = "";
+$text['title-sessiontalk']['ru-ru'] = "";
+$text['title-sessiontalk']['sv-se'] = "";
+$text['title-sessiontalk']['uk-ua'] = "";
 
-	Software distributed under the License is distributed on an "AS IS" basis,
-	WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
-	for the specific language governing rights and limitations under the
-	License.
+$text['title_description-sessiontalk']['en-us'] = "SessionCloud is a soft phone for mobile devices and Windows 10 PC's. Choose your extension and follow the provided instructions below.";
+$text['title_description-sessiontalk']['en-gb'] = "SessionCloud is a soft phone for smart phones or tablets. It can be configured easily with a QR code provided here. To use it download and install SessionCloud for your device. Start the application then select the extension below and scan the QR code.";
+$text['title_description-sessiontalk']['ar-eg'] = "";
+$text['title_description-sessiontalk']['de-at'] = "";
+$text['title_description-sessiontalk']['de-ch'] = "";
+$text['title_description-sessiontalk']['de-de'] = "";
+$text['title_description-sessiontalk']['es-cl'] = "";
+$text['title_description-sessiontalk']['es-mx'] = "";
+$text['title_description-sessiontalk']['fr-ca'] = "SessionCloud est un logiciel de téléphonie pour smartphones ou tablettes. Il peut être configuré facilement avec un code QR fourni ici. Pour l'utiliser, téléchargez et installez Sessiontalk sur votre appareil. Lancez l'application, puis allez dans les paramètres du compte, appuyez sur le signe + pour ajouter un nouveau compte. Appuyez sur Compte UCM (Scan QR Code), puis sélectionnez l’extension et scannez le code QR.";
+$text['title_description-sessiontalk']['fr-fr'] = "SessionCloud est un logiciel de téléphonie pour smartphones ou tablettes. Il peut être configuré facilement avec un code QR fourni ici. Pour l'utiliser, téléchargez et installez Sessiontalk sur votre appareil. Lancez l'application, puis allez dans les paramètres du compte, appuyez sur le signe + pour ajouter un nouveau compte. Appuyez sur Compte UCM (Scan QR Code), puis sélectionnez l’extension et scannez le code QR.";
+$text['title_description-sessiontalk']['he-il'] = "";
+$text['title_description-sessiontalk']['it-it'] = "";
+$text['title_description-sessiontalk']['nl-nl'] = "SessionCloud is een software telefoon voor 'smart-phones' en 'tablets'. Het kan eenvoudig d.m.v. een QR code voorzien worden van configuratie. Installeer Granstream Wave op je apparaat start de applicatie en ga naar ' Account Settings' en druk op + om een nieuwaccount toe te voegen. Druk op 'UCM account' (Scan QR Code) and kies het toestelnummer en scan de QR code met het apparaat.";
+$text['title_description-sessiontalk']['pl-pl'] = "";
+$text['title_description-sessiontalk']['pt-br'] = "";
+$text['title_description-sessiontalk']['pt-pt'] = "";
+$text['title_description-sessiontalk']['ro-ro'] = "";
+$text['title_description-sessiontalk']['ru-ru'] = "";
+$text['title_description-sessiontalk']['sv-se'] = "";
+$text['title_description-sessiontalk']['uk-ua'] = "";
 
-	The Original Code is FusionPBX
-
-	The Initial Developer of the Original Code is
-	Mark J Crane <markjcrane@fusionpbx.com>
-	Portions created by the Initial Developer are Copyright (C) 2008-2020
-	the Initial Developer. All Rights Reserved.
-
-	Contributor(s):
-	Mark J Crane <markjcrane@fusionpbx.com>
-	KonradSC <konrd@yahoo.com>
-*/
-
-//includes
-	require_once "root.php";
-	require_once "resources/require.php";
-	require_once "resources/check_auth.php";
-
-//check permissions
-	if (permission_exists('sessiontalk_view')) {
-		//access granted
-	}
-	else {
-		echo "access denied";
-		exit;
-	}
-
-//add multi-lingual support
-	$language = new text;
-	$text = $language->get();
-
-//verify the id is as uuid then set as a variable
-	if (is_uuid($_GET['id'])) {
-		$extension_uuid = $_GET['id'];
-	}
-
-//get the extension(s)
-	if (permission_exists('extension_edit')) {
-		//admin user
-		$sql = "SELECT e.extension_uuid, e.extension, e.description, u.api_key, e.number_alias ";
-		$sql .= "FROM v_extensions AS e, v_extension_users AS eu, v_users AS u ";
-		$sql .= "WHERE e.domain_uuid = :domain_uuid ";
-		$sql .= "AND e.enabled = 'true' ";
-		$sql .= "AND e.extension_uuid = eu.extension_uuid ";
-		$sql .= "AND eu.user_uuid = u.user_uuid ";
-		$sql .= "order by e.extension asc ";
-	}
-	else {
-		//normal user
-		$sql = "SELECT e.extension_uuid, e.extension, e.description, u.api_key, e.number_alias ";
-		$sql .= "FROM v_extensions AS e, v_extension_users AS eu, v_users AS u ";
-		$sql .= "WHERE e.domain_uuid = :domain_uuid ";
-		$sql .= "AND eu.user_uuid = :user_uuid ";
-		$sql .= "AND e.extension_uuid = eu.extension_uuid ";
-		$sql .= "AND eu.user_uuid = u.user_uuid ";
-		$sql .= "order by e.extension asc ";
-		
-//		$sql .= "where e.extension_uuid = eu.extension_uuid ";
-//		$sql .= "and e.domain_uuid = :domain_uuid ";
-//		$sql .= "and e.enabled = 'true' ";
-//		$sql .= "order by e.extension asc ";
-		$parameters['user_uuid'] = $_SESSION['user']['user_uuid'];
-	}
-	$parameters['domain_uuid'] = $_SESSION['domain_uuid'];
-	$database = new database;
-	$extensions = $database->select($sql, $parameters, 'all');
-//echo $sql;
-//exit;
-	unset($sql, $parameters);
-
-	if (is_uuid($extension_uuid) && is_array($extensions) && @sizeof($extensions) != 0) {
-
-		//loop through get selected extension
-			if (is_array($extensions) && @sizeof($extensions) != 0) {
-				foreach ($extensions as $extension) {
-					if ($extension['extension_uuid'] == $extension_uuid) {
-						$field = $extension;
-						break;
-					}
-				}
-			}
-
-		//get the username
-			$username = $field['extension'];
-			if (isset($field['number_alias']) && strlen($field['number_alias']) > 0) {
-				$username = $field['number_alias'];
-			}
-
-			$qr_content = "scsc:". $username . "@" . $_SESSION['domain_name'] . ":". $field['api_key'] . ":" . $_SESSION['provision']['sessiontalk_provider_id']['text'];
-
-	}
-
-//debian
-	//apt install qrencode
-
-//include the header
-	$document['title'] = $text['title-sessiontalk'];
-	require_once "resources/header.php";
-
-//show the content
-	echo "<form name='frm' id='frm' method='get'>\n";
-
-	echo "<div class='action_bar' id='action_bar'>\n";
-	echo "	<div class='heading'><b>".$text['title-sessiontalk']."</b></div>\n";
-	echo "	<div class='actions'>\n";
-	echo "		<a href='https://play.google.com/store/apps/details?id=co.froute.sessioncloud' target='_blank'><img src='/app/sessiontalk/resources/images/google_play.png' style='width: auto; height: 30px;' /></a>";
-	echo "		<a href='https://apps.apple.com/us/app/sessioncloud-sip-softphone/id1065327562' target='_blank'><img src='/app/sessiontalk/resources/images/apple_app_store.png' style='width: auto; height: 30px;' /></a>";
-	echo "	</div>\n";
-	echo "	<div style='clear: both;'></div>\n";
-	echo "</div>\n";
-
-	echo $text['title_description-sessiontalk']."\n";
-	echo "<br /><br />\n";
-	//echo $qr_content;  //enable for debugging
-	echo "<div style='text-align: center; white-space: nowrap; margin: 10px 0 40px 0;'>";
-	echo $text['label-extension']."<br />\n";
-	echo "<select name='id' class='formfld' onchange='this.form.submit();'>\n";
-	echo "	<option value='' >".$text['label-select']."...</option>\n";
-	if (is_array($extensions) && @sizeof($extensions) != 0) {
-		foreach ($extensions as $row) {
-			$selected = $row['extension_uuid'] == $extension_uuid ? "selected='selected'" : null;
-			echo "	<option value='".escape($row['extension_uuid'])."' ".$selected.">".escape($row['extension'])." ".escape($row['number_alias'])." ".escape($row['description'])."</option>\n";
-		}
-	}
-	echo "</select>\n";
-
-	echo "</form>\n";
-	echo "<br>\n";
+$text['label-extension']['en-us'] = "Extension";
+$text['label-extension']['en-gb'] = "Extension";
+$text['label-extension']['ar-eg'] = "رقم داخلي";
+$text['label-extension']['de-at'] = "Nebenstelle"; //copied from de-de
+$text['label-extension']['de-ch'] = "Nebenstelle"; //copied from de-de
+$text['label-extension']['de-de'] = "Nebenstelle";
+$text['label-extension']['es-cl'] = "Extensión";
+$text['label-extension']['es-mx'] = "Extensión"; //copied from es-cl
+$text['label-extension']['fr-ca'] = "Extension"; //copied from fr-fr
+$text['label-extension']['fr-fr'] = "Extension";
+$text['label-extension']['he-il'] = "שלוחה";
+$text['label-extension']['it-it'] = "Interno";
+$text['label-extension']['nl-nl'] = "Toestel";
+$text['label-extension']['pl-pl'] = "Numer wewnętrzny";
+$text['label-extension']['pt-br'] = "Ramal";
+$text['label-extension']['pt-pt'] = "Extensão";
+$text['label-extension']['ro-ro'] = "";
+$text['label-extension']['ru-ru'] = "Внутренний Номер";
+$text['label-extension']['sv-se'] = "Anknytning";
+$text['label-extension']['uk-ua'] = "Розширення";
 
 
-//stream the file
-	if (is_uuid($extension_uuid)) {
-		$qr_content = html_entity_decode( $qr_content, ENT_QUOTES, 'UTF-8' );
-		
-		require_once 'resources/qr_code/QRErrorCorrectLevel.php';
-		require_once 'resources/qr_code/QRCode.php';
-		require_once 'resources/qr_code/QRCodeImage.php';
-  
-		try {
-			$code = new QRCode (- 1, QRErrorCorrectLevel::H);
-			$code->addData($qr_content);
-			$code->make();
-			
-			$img = new QRCodeImage ($code, $width=420, $height=420, $quality=50);
-			$img->draw();
-			$image = $img->getImage();
-			$img->finish();
-		}
-		catch (Exception $error) {
-			echo $error;
-		}
-	}
+$text['header-windows_10']['en-us'] = "Windows 10 Client";
+$text['header-windows_10']['en-gb'] = "Windows 10 Client";
+$text['header-windows_10']['ar-eg'] = "";
+$text['header-windows_10']['de-at'] = "";
+$text['header-windows_10']['de-ch'] = "";
+$text['header-windows_10']['de-de'] = "";
+$text['header-windows_10']['es-cl'] = "";
+$text['header-windows_10']['es-mx'] = "";
+$text['header-windows_10']['fr-ca'] = "Windows 10 Client";
+$text['header-windows_10']['fr-fr'] = "Windows 10 Client";
+$text['header-windows_10']['he-il'] = "";
+$text['header-windows_10']['it-it'] = "";
+$text['header-windows_10']['nl-nl'] = "Windows 10 Client";
+$text['header-windows_10']['pl-pl'] = "";
+$text['header-windows_10']['pt-br'] = "";
+$text['header-windows_10']['pt-pt'] = "";
+$text['header-windows_10']['ro-ro'] = "";
+$text['header-windows_10']['ru-ru'] = "";
+$text['header-windows_10']['sv-se'] = "";
+$text['header-windows_10']['uk-ua'] = "";
 
-//html image
-	if (is_uuid($extension_uuid)) {
-		echo "<img src=\"data:image/jpeg;base64,".base64_encode($image)."\" style='margin-top: 30px; padding: 5px; background: white; max-width: 100%;'>\n";
-	}
 
-	echo "</div>\n";
+$text['description-step_1']['en-us'] = "Step 1: ";
+$text['description-step_1']['en-gb'] = "Step 1: ";
+$text['description-step_1']['ar-eg'] = "";
+$text['description-step_1']['de-at'] = "";
+$text['description-step_1']['de-ch'] = "";
+$text['description-step_1']['de-de'] = "";
+$text['description-step_1']['es-cl'] = "";
+$text['description-step_1']['es-mx'] = "";
+$text['description-step_1']['fr-ca'] = "Step 1: ";
+$text['description-step_1']['fr-fr'] = "Step 1: ";
+$text['description-step_1']['he-il'] = "";
+$text['description-step_1']['it-it'] = "";
+$text['description-step_1']['nl-nl'] = "Step 1: ";
+$text['description-step_1']['pl-pl'] = "";
+$text['description-step_1']['pt-br'] = "";
+$text['description-step_1']['pt-pt'] = "";
+$text['description-step_1']['ro-ro'] = "";
+$text['description-step_1']['ru-ru'] = "";
+$text['description-step_1']['sv-se'] = "";
+$text['description-step_1']['uk-ua'] = "";
 
-//add the footer
-	require_once "resources/footer.php";
+
+$text['description-windows_10']['en-us'] = "Click here to download and install a preconfigured Windows 10 client.";
+$text['description-windows_10']['en-gb'] = "Click here to download and install a preconfigured Windows 10 client.";
+$text['description-windows_10']['ar-eg'] = "";
+$text['description-windows_10']['de-at'] = "";
+$text['description-windows_10']['de-ch'] = "";
+$text['description-windows_10']['de-de'] = "";
+$text['description-windows_10']['es-cl'] = "";
+$text['description-windows_10']['es-mx'] = "";
+$text['description-windows_10']['fr-ca'] = "Click here to download and install a preconfigured Windows 10 client.";
+$text['description-windows_10']['fr-fr'] = "Click here to download and install a preconfigured Windows 10 client.";
+$text['description-windows_10']['he-il'] = "";
+$text['description-windows_10']['it-it'] = "";
+$text['description-windows_10']['nl-nl'] = "Click here to download and install a preconfigured Windows 10 client.";
+$text['description-windows_10']['pl-pl'] = "";
+$text['description-windows_10']['pt-br'] = "";
+$text['description-windows_10']['pt-pt'] = "";
+$text['description-windows_10']['ro-ro'] = "";
+$text['description-windows_10']['ru-ru'] = "";
+$text['description-windows_10']['sv-se'] = "";
+$text['description-windows_10']['uk-ua'] = "";
+
+$text['description-step_2']['en-us'] = "Step 2: (Optional) ";
+$text['description-step_2']['en-gb'] = "Step 2: (Optional) ";
+$text['description-step_2']['ar-eg'] = "";
+$text['description-step_2']['de-at'] = "";
+$text['description-step_2']['de-ch'] = "";
+$text['description-step_2']['de-de'] = "";
+$text['description-step_2']['es-cl'] = "";
+$text['description-step_2']['es-mx'] = "";
+$text['description-step_2']['fr-ca'] = "Step 2: (Optional) ";
+$text['description-step_2']['fr-fr'] = "Step 2: (Optional) ";
+$text['description-step_2']['he-il'] = "";
+$text['description-step_2']['it-it'] = "";
+$text['description-step_2']['nl-nl'] = "Step 2: (Optional) ";
+$text['description-step_2']['pl-pl'] = "";
+$text['description-step_2']['pt-br'] = "";
+$text['description-step_2']['pt-pt'] = "";
+$text['description-step_2']['ro-ro'] = "";
+$text['description-step_2']['ru-ru'] = "";
+$text['description-step_2']['sv-se'] = "";
+$text['description-step_2']['uk-ua'] = "";
+
+$text['description-windows_10_directory']['en-us'] = "Click here to download a corporate directory ready to import into your Windows 10 client.";
+$text['description-windows_10_directory']['en-gb'] = "Click here to download a corporate directory ready to import into your Windows 10 client.";
+$text['description-windows_10_directory']['ar-eg'] = "";
+$text['description-windows_10_directory']['de-at'] = "";
+$text['description-windows_10_directory']['de-ch'] = "";
+$text['description-windows_10_directory']['de-de'] = "";
+$text['description-windows_10_directory']['es-cl'] = "";
+$text['description-windows_10_directory']['es-mx'] = "";
+$text['description-windows_10_directory']['fr-ca'] = "Click here to download a corporate directory ready to import into your Windows 10 client.";
+$text['description-windows_10_directory']['fr-fr'] = "Click here to download a corporate directory ready to import into your Windows 10 client.";
+$text['description-windows_10_directory']['he-il'] = "";
+$text['description-windows_10_directory']['it-it'] = "";
+$text['description-windows_10_directory']['nl-nl'] = "Click here to download a corporate directory ready to import into your Windows 10 client.";
+$text['description-windows_10_directory']['pl-pl'] = "";
+$text['description-windows_10_directory']['pt-br'] = "";
+$text['description-windows_10_directory']['pt-pt'] = "";
+$text['description-windows_10_directory']['ro-ro'] = "";
+$text['description-windows_10_directory']['ru-ru'] = "";
+$text['description-windows_10_directory']['sv-se'] = "";
+$text['description-windows_10_directory']['uk-ua'] = "";
+
+$text['description-step_1_mobile']['en-us'] = "Step 1: Install the SessionCloud app from Google Play Store or Apple App Store.";
+$text['description-step_1_mobile']['en-gb'] = "Step 1: Install the SessionCloud app from Google Play Store or Apple App Store.";
+$text['description-step_1_mobile']['ar-eg'] = "";
+$text['description-step_1_mobile']['de-at'] = "";
+$text['description-step_1_mobile']['de-ch'] = "";
+$text['description-step_1_mobile']['de-de'] = "";
+$text['description-step_1_mobile']['es-cl'] = "";
+$text['description-step_1_mobile']['es-mx'] = "";
+$text['description-step_1_mobile']['fr-ca'] = "Step 1: Install the SessionCloud app from Google Play Store or Apple App Store.";
+$text['description-step_1_mobile']['fr-fr'] = "Step 1: Install the SessionCloud app from Google Play Store or Apple App Store.";
+$text['description-step_1_mobile']['he-il'] = "";
+$text['description-step_1_mobile']['it-it'] = "";
+$text['description-step_1_mobile']['nl-nl'] = "Step 1: Install the SessionCloud app from Google Play Store or Apple App Store.";
+$text['description-step_1_mobile']['pl-pl'] = "";
+$text['description-step_1_mobile']['pt-br'] = "";
+$text['description-step_1_mobile']['pt-pt'] = "";
+$text['description-step_1_mobile']['ro-ro'] = "";
+$text['description-step_1_mobile']['ru-ru'] = "";
+$text['description-step_1_mobile']['sv-se'] = "";
+$text['description-step_1_mobile']['uk-ua'] = "";
+
+$text['description-step_2_mobile']['en-us'] = "Step 2: On your mobile device open the SessionCloud app, Softphone, and scan the QR code below.";
+$text['description-step_2_mobile']['en-gb'] = "Step 2: On your mobile device open the SessionCloud app, Softphone, and scan the QR code below.";
+$text['description-step_2_mobile']['ar-eg'] = "";
+$text['description-step_2_mobile']['de-at'] = "";
+$text['description-step_2_mobile']['de-ch'] = "";
+$text['description-step_2_mobile']['de-de'] = "";
+$text['description-step_2_mobile']['es-cl'] = "";
+$text['description-step_2_mobile']['es-mx'] = "";
+$text['description-step_2_mobile']['fr-ca'] = "Step 2: On your mobile device open the SessionCloud app, Softphone, and scan the QR code below.";
+$text['description-step_2_mobile']['fr-fr'] = "Step 2: On your mobile device open the SessionCloud app, Softphone, and scan the QR code below.";
+$text['description-step_2_mobile']['he-il'] = "";
+$text['description-step_2_mobile']['it-it'] = "";
+$text['description-step_2_mobile']['nl-nl'] = "Step 2: On your mobile device open the SessionCloud app, Softphone, and scan the QR code below.";
+$text['description-step_2_mobile']['pl-pl'] = "";
+$text['description-step_2_mobile']['pt-br'] = "";
+$text['description-step_2_mobile']['pt-pt'] = "";
+$text['description-step_2_mobile']['ro-ro'] = "";
+$text['description-step_2_mobile']['ru-ru'] = "";
+$text['description-step_2_mobile']['sv-se'] = "";
+$text['description-step_2_mobile']['uk-ua'] = "";
+
+$text['header-mobile']['en-us'] = "Mobile Client (Android & iOS)";
+$text['header-mobile']['en-gb'] = "Mobile Client (Android & iOS)";
+$text['header-mobile']['ar-eg'] = "";
+$text['header-mobile']['de-at'] = "";
+$text['header-mobile']['de-ch'] = "";
+$text['header-mobile']['de-de'] = "";
+$text['header-mobile']['es-cl'] = "";
+$text['header-mobile']['es-mx'] = "";
+$text['header-mobile']['fr-ca'] = "Mobile Client (Android & iOS)";
+$text['header-mobile']['fr-fr'] = "Mobile Client (Android & iOS)";
+$text['header-mobile']['he-il'] = "";
+$text['header-mobile']['it-it'] = "";
+$text['header-mobile']['nl-nl'] = "Mobile Client (Android & iOS)";
+$text['header-mobile']['pl-pl'] = "";
+$text['header-mobile']['pt-br'] = "";
+$text['header-mobile']['pt-pt'] = "";
+$text['header-mobile']['ro-ro'] = "";
+$text['header-mobile']['ru-ru'] = "";
+$text['header-mobile']['sv-se'] = "";
+$text['header-mobile']['uk-ua'] = "";
 
 ?>
